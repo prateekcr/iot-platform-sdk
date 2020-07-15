@@ -17,10 +17,8 @@ package org.sdo.iotplatformsdk.ops.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 import java.util.HashSet;
 import java.util.concurrent.Executors;
-
 import org.sdo.iotplatformsdk.common.protocol.config.EpidOptionBean;
 import org.sdo.iotplatformsdk.common.protocol.config.ObjectFactory;
 import org.sdo.iotplatformsdk.common.protocol.config.OwnershipProxyStorage;
@@ -340,5 +338,14 @@ public class OpsConfiguration implements WebMvcConfigurer {
   protected Message255Handler message255Handler() throws Exception {
     return new Message255Handler(sessionStorageFactory().getObject(),
         ownerEventHandlerFactory().getObject());
+  }
+
+  /**
+   * Creates and returns a singleton instance of {@link OpsPropertiesLoader}.
+   * Calls to this method returns the same instance, always.
+   */
+  @Bean
+  protected OpsPropertiesLoader opsPropertiesLoader() {
+    return new OpsPropertiesLoader();
   }
 }

@@ -16,7 +16,6 @@ package org.sdo.iotplatformsdk.to0scheduler.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 import java.net.http.HttpClient;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
@@ -24,9 +23,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-
 import javax.net.ssl.SSLContext;
-
 import org.sdo.iotplatformsdk.common.protocol.config.ObjectFactory;
 import org.sdo.iotplatformsdk.common.protocol.config.SecureRandomFactory;
 import org.sdo.iotplatformsdk.common.protocol.config.SslContextFactory;
@@ -215,5 +212,14 @@ public class To0ServiceConfiguration {
     final ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new Jdk8Module());
     return mapper;
+  }
+
+  /**
+   * Creates and returns a singleton instance of {@link To0PropertiesLoader}.
+   * Calls to this method returns the same instance, always.
+   */
+  @Bean
+  protected To0PropertiesLoader opsPropertiesLoader() {
+    return new To0PropertiesLoader();
   }
 }

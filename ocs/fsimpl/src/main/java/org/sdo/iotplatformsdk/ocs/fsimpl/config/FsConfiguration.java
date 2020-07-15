@@ -16,8 +16,8 @@ package org.sdo.iotplatformsdk.ocs.fsimpl.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
 import org.sdo.iotplatformsdk.ocs.fsimpl.fs.FsOcsContractImpl;
+import org.sdo.iotplatformsdk.ocs.fsimpl.fs.FsPropertiesLoader;
 import org.sdo.iotplatformsdk.ocs.fsimpl.rest.FsHealthController;
 import org.sdo.iotplatformsdk.ocs.fsimpl.rest.OcsRestController;
 import org.sdo.iotplatformsdk.ocs.services.OcsRestContract;
@@ -48,5 +48,10 @@ public class FsConfiguration {
     final ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new Jdk8Module());
     return new FsOcsContractImpl(mapper);
+  }
+
+  @Bean
+  protected FsPropertiesLoader opsPropertiesLoader() {
+    return new FsPropertiesLoader();
   }
 }

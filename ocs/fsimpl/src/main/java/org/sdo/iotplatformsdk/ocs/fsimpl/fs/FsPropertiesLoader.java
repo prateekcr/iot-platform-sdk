@@ -16,11 +16,14 @@
 
 package org.sdo.iotplatformsdk.ocs.fsimpl.fs;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
+import org.apache.commons.configuration2.CompositeConfiguration;
+import org.apache.commons.configuration2.EnvironmentConfiguration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.SystemConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +35,25 @@ public class FsPropertiesLoader {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FsPropertiesLoader.class);
   private static final String configurationFile = "application.properties";
-  private static final Properties properties = new Properties();
-  private static final ConcurrentHashMap<String, String> propertiesMap = new ConcurrentHashMap<>();
+  private static final CompositeConfiguration configuration = new CompositeConfiguration();
+
+
+  /**
+   * Constructor.
+   */
+  public FsPropertiesLoader() {
+    try {
+      final FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+          new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+              .configure(new Parameters().properties().setFileName(configurationFile));
+      configuration.addConfiguration(new SystemConfiguration().interpolatedConfiguration());
+      configuration.addConfiguration(new EnvironmentConfiguration().interpolatedConfiguration());
+      configuration.addConfiguration(builder.getConfiguration());
+    } catch (ConfigurationException e) {
+      LOGGER.error("Unable to create properties configuration. " + e.getMessage());
+      LOGGER.debug(e.getMessage(), e);
+    }
+  }
 
   /**
    * Get the value of the specified property in the following preference order: system property,
@@ -46,24 +66,9 @@ public class FsPropertiesLoader {
     if (null == property || property.isBlank()) {
       return null;
     }
-    if (!propertiesMap.contains(property)) {
-      final String value = null != System.getProperty(property) ? System.getProperty(property)
-          : System.getenv(property);
-      if (null != value) {
-        propertiesMap.putIfAbsent(property, value);
-      } else {
-        try {
-          properties.load(new FileReader(configurationFile));
-          if (null != properties.getProperty(property)
-              && !properties.getProperty(property).trim().isEmpty()) {
-            propertiesMap.putIfAbsent(property, properties.getProperty(property));
-          }
-        } catch (IOException e) {
-          LOGGER.error("Unable to find/load " + configurationFile + ".");
-          LOGGER.debug(e.getMessage(), e);
-        }
-      }
+    if (!configuration.containsKey(property)) {
+      LOGGER.error("Undefined property: " + property);
     }
-    return propertiesMap.get(property);
+    return configuration.getString(property);
   }
 }
